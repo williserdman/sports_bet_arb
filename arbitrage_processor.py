@@ -1,12 +1,12 @@
 import pandas as pd
 import requests
-from environment import API_KEY
 
 
 class ArbProcessor:
-    def __init__(self, key: str):
-        self.sport = key
-        self.df = self._get_data(key)
+    def __init__(self, sport: str, api_key):
+        self.api_key = api_key
+        self.sport = sport
+        self.df = self._get_data(self.sport, self.api_key)
 
         if self.df is None:
             self.potential = False
@@ -34,8 +34,8 @@ class ArbProcessor:
         surebet_ids = imp_prob_df.loc[imp_prob_df["imp_prob_sum"] < 1, "id"].tolist()
         return surebet_ids
 
-    def _get_data(self, key: str) -> pd.DataFrame | None:
-        url = f"https://api.the-odds-api.com/v4/sports/{key}/odds?regions=us&oddsFormat=decimal&apiKey={API_KEY}"
+    def _get_data(self, sport: str, api_key) -> pd.DataFrame | None:
+        url = f"https://api.the-odds-api.com/v4/sports/{sport}/odds?regions=us&oddsFormat=decimal&apiKey={api_key}"
         r = requests.get(url)
         j = r.json()
 
@@ -77,8 +77,8 @@ class ArbProcessor:
         return cls.get_sports_df()["key"].to_list()
 
     @classmethod
-    def get_sports_df(cls) -> pd.DataFrame:
-        url = f"https://api.the-odds-api.com/v4/sports?apiKey={API_KEY}"
+    def get_sports_df(cls, api_key) -> pd.DataFrame:
+        url = f"https://api.the-odds-api.com/v4/sports?apiKey={api_key}"
         response = requests.get(url)
         return pd.DataFrame(response.json())
 
